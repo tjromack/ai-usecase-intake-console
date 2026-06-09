@@ -138,4 +138,7 @@ CLAUDE.md          # operating contract for Claude Code
 
 ## Status
 
-In development. See `TODO.md` for the phased plan.
+Feature-complete prototype (Phases 0–5). Intake, LLM scoring with human override, the
+prioritized portfolio, impact/feasibility quadrant, one-page decision brief, and the scoring
+eval all run on seeded synthetic data. `make reset` returns a clean demo state; `make eval`
+prints the scoring report. See `TODO.md` for the phased plan and `DEMO.md` for the walkthrough.

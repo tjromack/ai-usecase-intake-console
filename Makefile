@@ -37,8 +37,8 @@ reset:  ## Delete the db and re-seed for a clean demo
 test:  ## Run the test suite
 	$(PY) -m pytest -q
 
-eval:  ## Run the scoring evaluation harness (Phase 5)
-	@echo "eval: not implemented until Phase 5." && exit 1
+eval:  ## Run the scoring evaluation harness
+	$(PY) -m app.eval
 
 fmt:  ## Format and lint-fix the codebase
 	$(VENV_BIN)/ruff format .

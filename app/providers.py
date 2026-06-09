@@ -116,6 +116,9 @@ _NOT_FIT_MARKERS = (
     "database lookup",
     "lookup against",
     "api call",
+    "via api",
+    "via an api",
+    "enrollment database",
     "system of record",
 )
 

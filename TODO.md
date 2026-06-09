@@ -55,12 +55,16 @@ at every phase boundary.
   ranking/grouping, quadrant SVG (4 labels, 10 points), and a printable brief.
 
 ## Phase 5 — Evaluation, polish, demo
-- [ ] `app/eval.py`: stability check (re-score variance), guardrail check ("not a fit" cases
-      flagged correctly), rubric-adherence check (rationales present).
-- [ ] `make eval` prints a short report.
-- [ ] Empty states, basic styling, error handling on the LLM call.
-- [ ] Finalize `DEMO.md` script and verify `make reset` → demo path works cold.
-- **Gate:** full demo runs start to finish from a clean state.
+- [x] `app/eval.py`: stability (re-score composite spread), guardrail (3/3 not-a-fit cases
+      flagged), rubric adherence (rationale per dimension + ROI present); offline by default
+      (DECISIONS 014).
+- [x] `make eval` prints a short report and exits non-zero on failure.
+- [x] Empty states (portfolio, quadrant, unscored brief), styling, and LLM-call error
+      handling (in-card message with guidance) — landed across Phases 2–4.
+- [x] Finalized `DEMO.md` (real button labels, provider note, eval output) and verified
+      `make reset` → cold demo path (every screen 200, live scoring/override, eval PASS).
+- **Gate:** full demo runs start to finish from a clean state. ✅ 35 tests pass; cold start
+  verified end to end; `make eval` → guardrail 3/3, rubric 30/30, Overall PASS.
 
 ---
 

@@ -5,4 +5,4 @@ scoring them across five dimensions for portfolio prioritization. Synthetic
 data only — see CLAUDE.md for the operating contract.
 """
 
-__version__ = "0.4.0"  # bumped at phase boundaries
+__version__ = "1.0.0"  # bumped at phase boundaries

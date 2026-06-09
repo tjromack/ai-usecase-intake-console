@@ -186,3 +186,23 @@ entry whenever a real tradeoff is made.
   browser-dependent.
 - Revisit if: Stakeholders want configurable weights per portfolio → move weights to config/
   the DB; or richer interactivity is needed → reconsider a charting library.
+
+## 014. Eval re-scores the canonical seed and runs offline by default
+- Date / phase: Phase 5
+- Decision: `app/eval.py` re-scores the seed file (not the live DB) K times with the
+  configured provider and reports three metrics — stability (composite spread), guardrail
+  recall (the deliberate not-a-fit cases flagged), and rubric adherence (rationale per
+  dimension + ROI present). It falls back to the `stub` provider when no `MODEL_PROVIDER`
+  and no `ANTHROPIC_API_KEY` are set, so `make eval` always runs; the report names the
+  provider. The stub's not-a-fit keyword markers were extended so it catches all three seed
+  guardrail cases (incl. the eligibility-lookup case, which describes a DB/API lookup).
+- Alternatives considered: Evaluating the stored DB scores (tests authoring, not the scorer);
+  requiring a live API key for `make eval` (breaks offline/CI); a separate labelled eval set.
+- Why: Re-scoring the canonical seed exercises the actual scorer and is reproducible. Offline
+  default keeps the harness runnable in CI and on a demo laptop with no network. The seed's
+  authored ai_fit flags are a free ground-truth label set for the guardrail check.
+- Tradeoff accepted: With the stub, stability is trivially perfect and guardrail recall
+  reflects keyword heuristics, not model judgment — meaningful numbers need a real provider
+  (the report says which ran). The stub markers are mildly fitted to the seed vocabulary.
+- Revisit if: We add many more seed cases or want true precision/recall → build a dedicated
+  labelled eval set and report both precision and recall.

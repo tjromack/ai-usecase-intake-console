@@ -4,11 +4,16 @@ A tight, repeatable walkthrough for a live interview demo. Practice it cold.
 
 ## Before the demo
 ```bash
-make reset      # clean db, re-seed synthetic use cases
+make reset      # clean db, re-seed 10 synthetic use cases (3 deliberate "not a fit")
 make run        # start server
 # open http://localhost:8000, confirm the seeded portfolio loads
 ```
 Have a second terminal ready in case you need to re-run `make reset` between takes.
+
+**Provider:** set `ANTHROPIC_API_KEY` in `.env` to score on the live Claude model. For a
+fully offline demo (no key/network), set `MODEL_PROVIDER=stub` — scoring then uses a
+deterministic heuristic (clearly labelled in the UI). Either way the rest of the demo is
+identical.
 
 ## The 75-second happy path
 
@@ -20,25 +25,36 @@ Have a second terminal ready in case you need to re-run `make reset` between tak
    *"A business stakeholder describes a pain point in plain language — that's the input."*
    → Proves: realistic intake, low friction.
 
-3. **Run scoring.** Show the five dimension scores, each with a rationale, plus the ROI
-   hypothesis. *"It scores against the same five criteria the org prioritizes on, and it
-   explains each score — I never want an unexplained number."*
+3. **Run scoring.** On the use-case page, click **Run AI scoring**. Show the five dimension
+   scores (each with a rationale), the ROI hypothesis, and the composite priority + quadrant.
+   *"It scores against the same five criteria the org prioritizes on, and it explains each
+   score — I never want an unexplained number."*
    → Proves: explainability, alignment to the role's framework.
 
-4. **Show a "not a fit" case from the seed.** *"It also tells you when AI is the wrong tool,
-   with a reason. Knowing where not to use AI is part of the job."*
+4. **Show a "not a fit" case from the seed.** Open one of the three (e.g. *Autonomous
+   medical-necessity denials*). *"It also tells you when AI is the wrong tool, with a reason.
+   Knowing where not to use AI is part of the job."* Note they're grouped at the bottom of the
+   portfolio so they can't out-rank real opportunities.
    → Proves: responsible-AI judgment as a feature.
 
-5. **Override a score.** Change one value. *"The model proposes; a human decides. Overrides
-   are stored — AI is the aid, not the authority."*
+5. **Override a score.** Click **Override**, change one value, save. *"The model proposes; a
+   human decides. Overrides are stored with full provenance — AI is the aid, not the
+   authority."* The card shows a "Human override" badge.
    → Proves: human-in-the-loop.
 
-6. **Open the quadrant + export a one-page brief.** *"And it produces the executive artifact —
-   a prioritized portfolio and a decision brief per idea."*
+6. **Open the quadrant + the decision brief.** Click **Quadrant** in the nav, then **Decision
+   brief** on a case → **Print / Save as PDF**. *"And it produces the executive artifact — a
+   prioritized portfolio, an impact/feasibility quadrant, and a one-page brief per idea."*
    → Proves: it closes the loop to a decision.
 
-7. **(Optional) `make eval`.** *"I don't just trust the demo — there's a small eval that checks
-   scoring stability and that the 'not a fit' guardrail actually catches those cases."*
+7. **(Optional) `make eval`.** *"I don't just trust the demo — a small eval re-scores the seed
+   and checks scoring stability, that the 'not a fit' guardrail catches those cases, and that
+   every score carries a rationale."* Sample output:
+   ```
+   Guardrail ('not a fit for AI' cases flagged):  recall 3/3 (100%)   missed: none
+   Rubric adherence (rationale per dimension + ROI present):  pass 30/30 (100%)
+   Overall: PASS
+   ```
    → Proves: measurement beyond demos.
 
 ## Anticipated questions (have answers ready — see DECISIONS.md)
