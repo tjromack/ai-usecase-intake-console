@@ -1,0 +1,27 @@
+{% for case in cases %}
+  {% set s = scores.get(case['id']) %}
+  <tr>
+    <td>
+      <a class="row-title" href="/use-cases/{{ case['id'] }}">{{ case['title'] }}</a>
+      <div class="muted small">{{ case['problem']|truncate(96) }}</div>
+    </td>
+    <td>{{ case['submitter'] or '—' }}</td>
+    <td>{{ case['workflow'] or '—' }}</td>
+    <td>
+      {% if s is none %}
+        <span class="badge badge-neutral">Unscored</span>
+      {% elif s['ai_fit'] == 1 %}
+        <span class="badge badge-fit">AI fit</span>
+      {% else %}
+        <span class="badge badge-nofit">Not a fit</span>
+      {% endif %}
+    </td>
+    <td class="nowrap"><a href="/use-cases/{{ case['id'] }}/edit">Edit</a></td>
+  </tr>
+{% else %}
+  <tr>
+    <td colspan="5" class="muted empty">
+      No use cases match. <a href="/use-cases/new">Add one</a>.
+    </td>
+  </tr>
+{% endfor %}

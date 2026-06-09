@@ -169,6 +169,29 @@ def list_use_cases(conn: sqlite3.Connection) -> list[sqlite3.Row]:
     return conn.execute("SELECT * FROM use_case ORDER BY id").fetchall()
 
 
+def insert_use_case(conn: sqlite3.Connection, data: dict) -> int:
+    """Insert a new use case (no slug — user intake). Returns the row id."""
+    cols = [c for c in USE_CASE_COLUMNS if c in data]
+    vals = [data[c] for c in cols]
+    placeholders = ", ".join("?" * len(cols))
+    cur = conn.execute(
+        f"INSERT INTO use_case ({', '.join(cols)}) VALUES ({placeholders})", vals
+    )
+    return int(cur.lastrowid)
+
+
+def update_use_case(conn: sqlite3.Connection, use_case_id: int, data: dict) -> None:
+    """Update the editable fields of an existing use case in place."""
+    cols = [c for c in USE_CASE_COLUMNS if c in data]
+    if not cols:
+        return
+    assignments = ", ".join(f"{c} = ?" for c in cols)
+    conn.execute(
+        f"UPDATE use_case SET {assignments} WHERE id = ?",
+        [*[data[c] for c in cols], use_case_id],
+    )
+
+
 def get_use_case(conn: sqlite3.Connection, use_case_id: int) -> Optional[sqlite3.Row]:
     return conn.execute(
         "SELECT * FROM use_case WHERE id = ?", (use_case_id,)

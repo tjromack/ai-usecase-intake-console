@@ -123,3 +123,20 @@ entry whenever a real tradeoff is made.
   mitigated by labeling and rationales that state the risk posture in words.
 - Revisit if: Reviewers find the inverted Risk scale confusing → relabel as "Risk posture"
   or "Manageability" in the UI.
+
+## 011. Progressive-enhancement intake; routes kept in main.py for now
+- Date / phase: Phase 2
+- Decision: The intake form posts via HTMX (`hx-post`, swap the form fragment in on
+  validation error, `HX-Redirect` on success) but also carries plain `method/action` so it
+  works without JavaScript (server returns a 303 redirect when the `HX-Request` header is
+  absent). All Phase 2 routes live in `app/main.py` rather than a separate router module.
+- Alternatives considered: HTMX-only (no-JS users get a broken form); full-page POST with no
+  HTMX (loses the live-search and inline-error feel); splitting routes into an `APIRouter`
+  per area now.
+- Why: Progressive enhancement is cheap here and makes the demo robust if a CDN/JS hiccup
+  occurs live. Keeping ~8 routes in one file avoids premature structure (CLAUDE.md: minimal
+  dependencies / flag structure changes); a router split is a clean refactor once scoring and
+  portfolio routes land.
+- Tradeoff accepted: A little duplication between `hx-post` and `action`; `main.py` will grow
+  until the Phase 3/4 refactor.
+- Revisit if: `main.py` exceeds a comfortable size → split into `routers/` by area.

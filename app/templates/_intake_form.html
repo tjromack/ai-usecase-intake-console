@@ -1,0 +1,51 @@
+{# Intake form fragment. Rendered standalone inside intake_page.html, and
+   returned on its own (with errors) when validation fails so HTMX can swap it
+   in place. method/action keep it working without JS; hx-* enhance it. #}
+{% set d = data or {} %}
+<form class="form-card" method="post" action="{{ action }}"
+      hx-post="{{ action }}" hx-target="this" hx-swap="outerHTML">
+
+  <div class="field">
+    <label for="title">Title <span class="req">*</span></label>
+    <input id="title" name="title" type="text" value="{{ d.get('title', '') }}"
+           placeholder="e.g. Prior-authorization request triage" />
+    {% if errors.get('title') %}<p class="err">{{ errors['title'] }}</p>{% endif %}
+  </div>
+
+  <div class="field">
+    <label for="problem">Problem statement <span class="req">*</span></label>
+    <textarea id="problem" name="problem" rows="4"
+              placeholder="What hurts today, in plain language?">{{ d.get('problem', '') }}</textarea>
+    {% if errors.get('problem') %}<p class="err">{{ errors['problem'] }}</p>{% endif %}
+  </div>
+
+  <div class="field">
+    <label for="workflow">Affected workflow</label>
+    <input id="workflow" name="workflow" type="text" value="{{ d.get('workflow', '') }}" />
+  </div>
+
+  <div class="field">
+    <label for="data_availability">Data availability</label>
+    <textarea id="data_availability" name="data_availability" rows="2">{{ d.get('data_availability', '') }}</textarea>
+  </div>
+
+  <div class="field">
+    <label for="stakeholders">Stakeholders</label>
+    <input id="stakeholders" name="stakeholders" type="text" value="{{ d.get('stakeholders', '') }}" />
+  </div>
+
+  <div class="field">
+    <label for="current_pain">Current pain</label>
+    <textarea id="current_pain" name="current_pain" rows="2">{{ d.get('current_pain', '') }}</textarea>
+  </div>
+
+  <div class="field">
+    <label for="submitter">Submitter</label>
+    <input id="submitter" name="submitter" type="text" value="{{ d.get('submitter', '') }}" />
+  </div>
+
+  <div class="actions">
+    <button class="btn btn-primary" type="submit">Save use case</button>
+    <a class="btn" href="/">Cancel</a>
+  </div>
+</form>

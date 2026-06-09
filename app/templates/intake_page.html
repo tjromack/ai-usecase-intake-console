@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section>
+  <div class="page-head">
+    <h1>{{ heading }}</h1>
+    <a class="btn" href="/">Back to portfolio</a>
+  </div>
+  <p class="muted">
+    Capture the use case in plain language. Only <strong>title</strong> and
+    <strong>problem</strong> are required; the rest sharpens scoring in Phase 3.
+  </p>
+  {% include "_intake_form.html" %}
+</section>
+{% endblock %}

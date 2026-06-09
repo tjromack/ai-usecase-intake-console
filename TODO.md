@@ -25,9 +25,12 @@ at every phase boundary.
   8 tests pass (counts, guardrail, rationales present, rubric range, provenance, idempotency).
 
 ## Phase 2 — Intake
-- [ ] Intake form (HTMX) to create/edit a use case.
-- [ ] List view of submitted use cases.
-- **Gate:** can add and view use cases on seeded data.
+- [x] Intake form (HTMX) to create/edit a use case. Progressive enhancement: works without
+      JS via 303 fallback; required-field validation re-renders inline (DECISIONS 011).
+- [x] List view of submitted use cases, with HTMX live-search and AI-fit badges; read-only
+      detail view that surfaces the seeded scores + provenance + the 1–5 scale legend.
+- **Gate:** can add and view use cases on seeded data. ✅ 16 tests pass; live check confirms
+  list/search/create/edit/detail/validation/404 all work on seeded data.
 
 ## Phase 3 — Scoring engine
 - [ ] `app/scoring.py`: LLM scores the five dimensions (Impact, Feasibility, Risk, Adoption,

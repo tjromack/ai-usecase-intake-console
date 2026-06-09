@@ -1,21 +1,35 @@
 {% extends "base.html" %}
 
 {% block content %}
-<section class="hero">
-  <h1>AI Use-Case Intake &amp; Prioritization Console</h1>
-  <p class="lead">
-    A single front door for an AI opportunity pipeline: structured intake, explainable
-    scoring across five dimensions, and a prioritized portfolio — including an explicit
-    judgment on when AI is <em>not</em> the right tool.
+<section>
+  <div class="page-head">
+    <h1>Use-case portfolio</h1>
+    <a class="btn btn-primary" href="/use-cases/new">+ New use case</a>
+  </div>
+  <p class="muted">
+    {{ cases|length }} use case{{ '' if cases|length == 1 else 's' }}. A prioritized
+    ranking and impact/feasibility quadrant arrive in Phase 4.
   </p>
 
-  <div class="card">
-    <h2>Scaffold is live</h2>
-    <p class="muted">
-      Phase 0 complete — the app boots and renders. The portfolio, intake, scoring, and
-      decision-brief screens arrive in the phases that follow.
-    </p>
-    <p><a href="/health">Health check</a></p>
-  </div>
+  <input class="search" type="search" name="q" value="{{ q }}"
+         placeholder="Search title, problem, workflow, or submitter…"
+         aria-label="Search use cases"
+         hx-get="/use-cases/search" hx-target="#rows" hx-swap="innerHTML"
+         hx-trigger="keyup changed delay:200ms, search" />
+
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Use case</th>
+        <th>Submitter</th>
+        <th>Workflow</th>
+        <th>AI fit</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody id="rows">
+      {% include "_use_case_rows.html" %}
+    </tbody>
+  </table>
 </section>
 {% endblock %}

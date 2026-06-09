@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section>
+  <div class="page-head">
+    <h1>{{ case['title'] }}</h1>
+    <div class="actions-inline">
+      <a class="btn btn-primary" href="/use-cases/{{ case['id'] }}/edit">Edit</a>
+      <a class="btn" href="/">Back</a>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Intake</h2>
+    <dl class="kv">
+      <dt>Problem</dt><dd>{{ case['problem'] }}</dd>
+      <dt>Affected workflow</dt><dd>{{ case['workflow'] or '—' }}</dd>
+      <dt>Data availability</dt><dd>{{ case['data_availability'] or '—' }}</dd>
+      <dt>Stakeholders</dt><dd>{{ case['stakeholders'] or '—' }}</dd>
+      <dt>Current pain</dt><dd>{{ case['current_pain'] or '—' }}</dd>
+      <dt>Submitter</dt><dd>{{ case['submitter'] or '—' }}</dd>
+    </dl>
+  </div>
+
+  {% if score %}
+  <div class="card">
+    <div class="score-head">
+      <h2>Scoring</h2>
+      {% if score['ai_fit'] == 1 %}
+        <span class="badge badge-fit">AI fit</span>
+      {% else %}
+        <span class="badge badge-nofit">Not a fit for AI</span>
+      {% endif %}
+    </div>
+
+    {% if score['ai_fit'] == 0 %}
+      <p class="callout">{{ score['ai_fit_reason'] }}</p>
+    {% endif %}
+
+    <p class="muted small">
+      Scale: 1–5, where 5 is most favorable. For <strong>Risk</strong>, 5 means
+      low / well-managed risk.
+    </p>
+    <table class="table score-table">
+      <thead>
+        <tr><th>Dimension</th><th>Score</th><th>Rationale</th></tr>
+      </thead>
+      <tbody>
+        {% for key, label in dimensions %}
+        <tr>
+          <td>{{ label }}</td>
+          <td class="score-num">{{ score[key] }}<span class="muted">/5</span></td>
+          <td>{{ score[key ~ '_rationale'] }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <p><strong>ROI hypothesis.</strong> {{ score['roi_hypothesis'] }}</p>
+    {% if score['ai_fit'] == 1 and score['ai_fit_reason'] %}
+      <p class="muted"><strong>Fit rationale.</strong> {{ score['ai_fit_reason'] }}</p>
+    {% endif %}
+
+    <p class="muted small provenance">
+      Source: {{ score['source'] }} · model: {{ score['model'] or '—' }} ·
+      prompt: {{ score['prompt_version'] or '—' }} · {{ score['created_at'] }}
+    </p>
+  </div>
+  {% else %}
+  <div class="card">
+    <h2>Scoring</h2>
+    <p class="muted">Not scored yet — the scoring engine arrives in Phase 3.</p>
+  </div>
+  {% endif %}
+</section>
+{% endblock %}
