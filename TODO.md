@@ -47,10 +47,12 @@ at every phase boundary.
   Anthropic path implemented (forced tool use) but unexercised here — no API key in this env.
 
 ## Phase 4 — Prioritization & export
-- [ ] Portfolio view: sortable list with a composite priority score.
-- [ ] Impact/feasibility quadrant visualization.
-- [ ] One-page decision brief per use case (HTML, printable to PDF).
-- **Gate:** portfolio + quadrant + brief all demoable.
+- [x] Portfolio view: composite priority score (0–100, weighted mean), sortable columns,
+      AI-fit cases ranked first with not-a-fit grouped separately (DECISIONS 013).
+- [x] Impact/feasibility quadrant: server-rendered SVG scatter, fit vs not-a-fit markers.
+- [x] One-page decision brief per use case (HTML, printable to PDF via `window.print()`).
+- **Gate:** portfolio + quadrant + brief all demoable. ✅ 32 tests pass; live check confirms
+  ranking/grouping, quadrant SVG (4 labels, 10 points), and a printable brief.
 
 ## Phase 5 — Evaluation, polish, demo
 - [ ] `app/eval.py`: stability check (re-score variance), guardrail check ("not a fit" cases

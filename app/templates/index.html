@@ -1,28 +1,43 @@
 {% extends "base.html" %}
 
+{% macro sorth(key, label, sort, dir, q) %}
+  {# Sortable header cell: toggles direction when already active. #}
+  {% set active = (sort == key) %}
+  {% set nextdir = 'asc' if (active and dir == 'desc') else 'desc' %}
+  <a class="sortlink {{ 'active' if active }}"
+     href="/?sort={{ key }}&dir={{ nextdir }}&q={{ q|urlencode }}">
+    {{ label }}{% if active %} {{ '▾' if dir == 'desc' else '▴' }}{% endif %}
+  </a>
+{% endmacro %}
+
 {% block content %}
 <section>
   <div class="page-head">
     <h1>Use-case portfolio</h1>
-    <a class="btn btn-primary" href="/use-cases/new">+ New use case</a>
+    <div class="actions-inline">
+      <a class="btn" href="/quadrant">Quadrant</a>
+      <a class="btn btn-primary" href="/use-cases/new">+ New use case</a>
+    </div>
   </div>
   <p class="muted">
-    {{ cases|length }} use case{{ '' if cases|length == 1 else 's' }}. A prioritized
-    ranking and impact/feasibility quadrant arrive in Phase 4.
+    Ranked by a composite priority score (0–100). AI-fit cases first; "not a fit"
+    cases are listed separately. Composite = weighted mean of the five dimensions.
   </p>
 
   <input class="search" type="search" name="q" value="{{ q }}"
          placeholder="Search title, problem, workflow, or submitter…"
          aria-label="Search use cases"
          hx-get="/use-cases/search" hx-target="#rows" hx-swap="innerHTML"
+         hx-vals='{"sort": "{{ sort }}", "dir": "{{ dir }}"}'
          hx-trigger="keyup changed delay:200ms, search" />
 
   <table class="table">
     <thead>
       <tr>
-        <th>Use case</th>
-        <th>Submitter</th>
-        <th>Workflow</th>
+        <th>{{ sorth('title', 'Use case', sort, dir, q) }}</th>
+        <th>{{ sorth('composite', 'Priority', sort, dir, q) }}</th>
+        <th>{{ sorth('impact', 'Impact', sort, dir, q) }}</th>
+        <th>{{ sorth('feasibility', 'Feasibility', sort, dir, q) }}</th>
         <th>AI fit</th>
         <th></th>
       </tr>

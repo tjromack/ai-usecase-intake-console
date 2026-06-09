@@ -37,6 +37,12 @@
       </tbody>
     </table>
 
+    <p class="composite-line">
+      <strong>Priority score</strong>
+      <span class="pill pill-{{ composite|tier }}">{{ composite }}</span>
+      <span class="muted">/ 100 · quadrant: {{ quadrant }}</span>
+    </p>
+
     <p><strong>ROI hypothesis.</strong> {{ score['roi_hypothesis'] }}</p>
     {% if score['ai_fit'] == 1 and score['ai_fit_reason'] %}
       <p class="muted"><strong>Fit rationale.</strong> {{ score['ai_fit_reason'] }}</p>
@@ -62,6 +68,7 @@
             hx-target="#score-card" hx-swap="outerHTML">
       Override
     </button>
+    <a class="btn" href="/use-cases/{{ case['id'] }}/brief">Decision brief</a>
     {% endif %}
     <span id="score-spin" class="htmx-indicator muted">Scoring…</span>
   </div>

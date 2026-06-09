@@ -164,3 +164,25 @@ entry whenever a real tradeoff is made.
   implemented but unverified here (no local Ollama).
 - Revisit if: We standardize on a newer SDK → switch the Anthropic provider to
   `messages.parse()`; or scores prove unstable → add few-shot anchors / a stricter rubric.
+
+## 013. Composite = transparent weighted mean; not-a-fit grouped separately
+- Date / phase: Phase 4
+- Decision: Composite priority = weighted mean of the five 1-5 dimensions, mapped to 0-100.
+  Weights: Impact 0.30, Strategic Value 0.25, Feasibility 0.20, Adoption 0.15, Risk 0.10
+  (sum 1.0, one constant in `prioritization.WEIGHTS`). The portfolio always groups AI-fit
+  cases first, then not-a-fit, then unscored — so a high-scoring not-a-fit case can never
+  outrank a real opportunity. The quadrant is Impact (y) × Feasibility (x), split at the
+  scale midpoint (3). Charts are server-rendered SVG; the brief prints via `window.print()`.
+- Alternatives considered: An equal-weighted mean (no opinion on what matters); a JS chart
+  library (Chart.js/D3) for the quadrant; a separate PDF library for the brief; letting
+  composite alone sort everything (not-a-fit cases could float to the top).
+- Why: Explainability is the product (CLAUDE.md). A weighted mean is trivial to explain and
+  defend, and exposing the weights as one constant makes the philosophy editable without
+  touching logic. Grouping keeps the responsible-AI guardrail visible in the ranking itself.
+  Server-rendered SVG + `window.print()` honor the "no build step / minimal dependencies"
+  guardrail — the browser's print-to-PDF is enough for a one-page brief.
+- Tradeoff accepted: The weights are a judgement call (mitigated: explicit + documented); a
+  pure-CSS/SVG quadrant is less interactive than a charting lib; print-to-PDF styling is
+  browser-dependent.
+- Revisit if: Stakeholders want configurable weights per portfolio → move weights to config/
+  the DB; or richer interactivity is needed → reconsider a charting library.

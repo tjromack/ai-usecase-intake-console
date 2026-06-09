@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="brief">
+  <div class="page-head no-print">
+    <h1>Decision brief</h1>
+    <div class="actions-inline">
+      <button class="btn btn-primary" type="button" onclick="window.print()">Print / Save as PDF</button>
+      <a class="btn" href="/use-cases/{{ case['id'] }}">Back</a>
+    </div>
+  </div>
+
+  <article class="brief-sheet">
+    <header class="brief-head">
+      <h2>{{ case['title'] }}</h2>
+      <p class="muted small">
+        AI Use-Case Decision Brief · synthetic data · submitter: {{ case['submitter'] or '—' }}
+      </p>
+    </header>
+
+    {% if score %}
+    <div class="brief-verdict">
+      <div>
+        <span class="muted small">Priority</span>
+        <div class="big-score">{{ composite }}<span class="muted">/100</span></div>
+      </div>
+      <div>
+        <span class="muted small">Quadrant</span>
+        <div class="big-quad">{{ quadrant }}</div>
+      </div>
+      <div>
+        <span class="muted small">AI fit</span>
+        <div>
+          {% if score['ai_fit'] == 1 %}
+            <span class="badge badge-fit">AI fit</span>
+          {% else %}
+            <span class="badge badge-nofit">Not a fit for AI</span>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    {% if score['ai_fit'] == 0 %}
+      <p class="callout"><strong>Why not AI:</strong> {{ score['ai_fit_reason'] }}</p>
+    {% endif %}
+    {% endif %}
+
+    <h3>Problem &amp; context</h3>
+    <dl class="kv">
+      <dt>Problem</dt><dd>{{ case['problem'] }}</dd>
+      <dt>Affected workflow</dt><dd>{{ case['workflow'] or '—' }}</dd>
+      <dt>Data availability</dt><dd>{{ case['data_availability'] or '—' }}</dd>
+      <dt>Stakeholders</dt><dd>{{ case['stakeholders'] or '—' }}</dd>
+      <dt>Current pain</dt><dd>{{ case['current_pain'] or '—' }}</dd>
+    </dl>
+
+    {% if score %}
+    <h3>Scoring</h3>
+    <p class="muted small">1–5, where 5 is most favorable. For Risk, 5 = low / well-managed risk.</p>
+    <table class="table score-table">
+      <thead><tr><th>Dimension</th><th>Score</th><th>Rationale</th></tr></thead>
+      <tbody>
+        {% for key, label in dimensions %}
+        <tr>
+          <td>{{ label }}</td>
+          <td class="score-num">{{ score[key] }}<span class="muted">/5</span></td>
+          <td>{{ score[key ~ '_rationale'] }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <h3>ROI hypothesis</h3>
+    <p>{{ score['roi_hypothesis'] }}</p>
+
+    <p class="muted small provenance">
+      Source: {{ score['source'] }} · model: {{ score['model'] or '—' }} ·
+      prompt: {{ score['prompt_version'] or '—' }} · scored {{ score['created_at'] }}
+    </p>
+    {% else %}
+    <p class="muted">Not scored yet — run scoring from the use-case page to populate this brief.</p>
+    {% endif %}
+  </article>
+</section>
+{% endblock %}

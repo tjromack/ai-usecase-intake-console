@@ -14,7 +14,7 @@ from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse, Resp
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
-from app import __version__, db, models, scoring
+from app import __version__, db, models, prioritization, scoring
 
 # Load .env early so config is available to every module. Absent .env is fine
 # until scoring needs a key (Phase 3); scoring validates its own config.
@@ -51,6 +51,7 @@ app = FastAPI(
 )
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 templates = Jinja2Templates(directory=str(TEMPLATES_DIR))
+templates.env.filters["tier"] = prioritization.tier  # composite -> styling band
 
 
 # --- helpers ---------------------------------------------------------------
@@ -84,6 +85,14 @@ def _is_htmx(request: Request) -> bool:
     return request.headers.get("HX-Request") == "true"
 
 
+def _portfolio_rows(conn, q: str, sort: str, direction: str) -> list[dict]:
+    """Filtered, prioritized portfolio rows (case fields + composite/quadrant)."""
+    cases = _filter_cases(models.list_use_cases(conn), q)
+    scores = models.latest_scores(conn)
+    rows = [prioritization.row_for(c, scores.get(c["id"])) for c in cases]
+    return prioritization.order(rows, sort, direction)
+
+
 # --- health ----------------------------------------------------------------
 
 
@@ -97,28 +106,109 @@ def health() -> JSONResponse:
 
 
 @app.get("/", response_class=HTMLResponse)
-def index(request: Request, q: str = "") -> HTMLResponse:
-    """List view of submitted use cases. Becomes the portfolio in Phase 4."""
+def index(
+    request: Request, q: str = "", sort: str = "composite", dir: str = "desc"
+) -> HTMLResponse:
+    """Prioritized portfolio: composite-ranked, AI-fit cases first."""
     with db.get_connection() as conn:
-        cases = _filter_cases(models.list_use_cases(conn), q)
-        scores = models.latest_scores(conn)
+        rows = _portfolio_rows(conn, q, sort, dir)
     return templates.TemplateResponse(
         request,
         "index.html",
-        {"title": "Portfolio", "cases": cases, "scores": scores, "q": q},
+        {"title": "Portfolio", "rows": rows, "q": q, "sort": sort, "dir": dir},
     )
 
 
 @app.get("/use-cases/search", response_class=HTMLResponse)
-def search_use_cases(request: Request, q: str = "") -> HTMLResponse:
-    """HTMX partial: the filtered table rows for the live-search box."""
+def search_use_cases(
+    request: Request, q: str = "", sort: str = "composite", dir: str = "desc"
+) -> HTMLResponse:
+    """HTMX partial: the filtered/sorted table rows for the live-search box."""
     with db.get_connection() as conn:
-        cases = _filter_cases(models.list_use_cases(conn), q)
-        scores = models.latest_scores(conn)
+        rows = _portfolio_rows(conn, q, sort, dir)
+    return templates.TemplateResponse(request, "_use_case_rows.html", {"rows": rows})
+
+
+# --- quadrant + brief (Phase 4) --------------------------------------------
+
+# Impact (y) x Feasibility (x) scatter. Server-rendered SVG, no JS chart lib.
+_CHART_W, _CHART_H, _CHART_PAD = 560, 400, 56
+
+
+def _quadrant_chart(conn) -> dict:
+    """Compute SVG geometry for the impact/feasibility quadrant."""
+    plot_w = _CHART_W - 2 * _CHART_PAD
+    plot_h = _CHART_H - 2 * _CHART_PAD
+
+    def px(value: int) -> float:  # feasibility -> x
+        return _CHART_PAD + (value - 1) / 4 * plot_w
+
+    def py(value: int) -> float:  # impact -> y (inverted)
+        return (_CHART_H - _CHART_PAD) - (value - 1) / 4 * plot_h
+
+    scores = models.latest_scores(conn)
+    points = []
+    for case in models.list_use_cases(conn):
+        score = scores.get(case["id"])
+        if score is None:
+            continue
+        # Small deterministic jitter so co-located points don't fully overlap.
+        jx = ((case["id"] % 3) - 1) * 7
+        jy = (((case["id"] // 3) % 3) - 1) * 7
+        points.append(
+            {
+                "id": case["id"],
+                "title": case["title"],
+                "cx": round(px(score["feasibility"]) + jx, 1),
+                "cy": round(py(score["impact"]) + jy, 1),
+                "fit": score["ai_fit"] == 1,
+                "impact": score["impact"],
+                "feasibility": score["feasibility"],
+                "composite": prioritization.composite(score),
+            }
+        )
+
+    return {
+        "w": _CHART_W,
+        "h": _CHART_H,
+        "pad": _CHART_PAD,
+        "midx": round(px(3), 1),
+        "midy": round(py(3), 1),
+        "xticks": [{"x": round(px(v), 1), "label": v} for v in range(1, 6)],
+        "yticks": [{"y": round(py(v), 1), "label": v} for v in range(1, 6)],
+        "points": points,
+    }
+
+
+@app.get("/quadrant", response_class=HTMLResponse)
+def quadrant(request: Request) -> HTMLResponse:
+    """Impact/feasibility quadrant view over all scored use cases."""
+    with db.get_connection() as conn:
+        chart = _quadrant_chart(conn)
+    return templates.TemplateResponse(
+        request, "quadrant.html", {"title": "Quadrant", "chart": chart}
+    )
+
+
+@app.get("/use-cases/{use_case_id}/brief", response_class=HTMLResponse)
+def decision_brief(request: Request, use_case_id: int) -> HTMLResponse:
+    """One-page decision brief for a use case (printable to PDF)."""
+    with db.get_connection() as conn:
+        case = models.get_use_case(conn, use_case_id)
+        score = models.latest_score_for(conn, use_case_id) if case else None
+    if case is None:
+        return _not_found(request)
     return templates.TemplateResponse(
         request,
-        "_use_case_rows.html",
-        {"cases": cases, "scores": scores},
+        "brief.html",
+        {
+            "title": f"Brief · {case['title']}",
+            "case": case,
+            "score": score,
+            "dimensions": models.DIMENSIONS,
+            "composite": prioritization.composite(score),
+            "quadrant": prioritization.quadrant(score),
+        },
     )
 
 
@@ -253,6 +343,8 @@ def use_case_detail(request: Request, use_case_id: int) -> HTMLResponse:
             "case": case,
             "score": score,
             "dimensions": models.DIMENSIONS,
+            "composite": prioritization.composite(score),
+            "quadrant": prioritization.quadrant(score),
         },
     )
 
@@ -271,6 +363,8 @@ def _score_card(
             "case": case,
             "score": score,
             "dimensions": models.DIMENSIONS,
+            "composite": prioritization.composite(score),
+            "quadrant": prioritization.quadrant(score),
             "error": error,
         },
     )

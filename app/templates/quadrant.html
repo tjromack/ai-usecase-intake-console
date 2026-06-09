@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section>
+  <div class="page-head">
+    <h1>Impact / feasibility quadrant</h1>
+    <a class="btn" href="/">Back to portfolio</a>
+  </div>
+  <p class="muted">
+    Each scored use case plotted by Impact (vertical) against Feasibility (horizontal).
+    Filled = AI fit; hollow amber = not a fit. Hover a point for details.
+  </p>
+
+  <div class="card quadrant-card">
+    <svg viewBox="0 0 {{ chart.w }} {{ chart.h }}" class="quadrant-svg"
+         role="img" aria-label="Impact versus feasibility quadrant chart">
+      <!-- Quadrant background split -->
+      <line x1="{{ chart.midx }}" y1="{{ chart.pad }}" x2="{{ chart.midx }}"
+            y2="{{ chart.h - chart.pad }}" class="q-mid" />
+      <line x1="{{ chart.pad }}" y1="{{ chart.midy }}" x2="{{ chart.w - chart.pad }}"
+            y2="{{ chart.midy }}" class="q-mid" />
+
+      <!-- Axes -->
+      <line x1="{{ chart.pad }}" y1="{{ chart.h - chart.pad }}"
+            x2="{{ chart.w - chart.pad }}" y2="{{ chart.h - chart.pad }}" class="q-axis" />
+      <line x1="{{ chart.pad }}" y1="{{ chart.pad }}"
+            x2="{{ chart.pad }}" y2="{{ chart.h - chart.pad }}" class="q-axis" />
+
+      <!-- Ticks -->
+      {% for t in chart.xticks %}
+        <text x="{{ t.x }}" y="{{ chart.h - chart.pad + 18 }}" class="q-tick" text-anchor="middle">{{ t.label }}</text>
+      {% endfor %}
+      {% for t in chart.yticks %}
+        <text x="{{ chart.pad - 12 }}" y="{{ t.y + 4 }}" class="q-tick" text-anchor="end">{{ t.label }}</text>
+      {% endfor %}
+
+      <!-- Axis labels -->
+      <text x="{{ (chart.w) / 2 }}" y="{{ chart.h - 12 }}" class="q-axis-label" text-anchor="middle">Feasibility →</text>
+      <text x="16" y="{{ chart.h / 2 }}" class="q-axis-label"
+            text-anchor="middle" transform="rotate(-90 16 {{ chart.h / 2 }})">Impact →</text>
+
+      <!-- Corner quadrant labels -->
+      <text x="{{ chart.w - chart.pad - 6 }}" y="{{ chart.pad + 4 }}" class="q-corner" text-anchor="end">Quick wins</text>
+      <text x="{{ chart.pad + 6 }}" y="{{ chart.pad + 4 }}" class="q-corner" text-anchor="start">Big bets</text>
+      <text x="{{ chart.w - chart.pad - 6 }}" y="{{ chart.h - chart.pad - 8 }}" class="q-corner" text-anchor="end">Incremental</text>
+      <text x="{{ chart.pad + 6 }}" y="{{ chart.h - chart.pad - 8 }}" class="q-corner" text-anchor="start">Deprioritize</text>
+
+      <!-- Points -->
+      {% for p in chart.points %}
+        <a href="/use-cases/{{ p.id }}/brief">
+          <circle cx="{{ p.cx }}" cy="{{ p.cy }}" r="7"
+                  class="q-point {{ 'q-fit' if p.fit else 'q-nofit' }}">
+            <title>{{ p.title }} — impact {{ p.impact }}, feasibility {{ p.feasibility }}, priority {{ p.composite }}</title>
+          </circle>
+        </a>
+      {% endfor %}
+    </svg>
+
+    {% if not chart.points %}
+      <p class="muted empty">No scored use cases yet. Score some from the portfolio.</p>
+    {% endif %}
+
+    <p class="muted small legend">
+      <span class="dot dot-fit"></span> AI fit
+      <span class="dot dot-nofit"></span> not a fit
+    </p>
+  </div>
+</section>
+{% endblock %}

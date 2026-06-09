@@ -1,27 +1,32 @@
-{% for case in cases %}
-  {% set s = scores.get(case['id']) %}
-  <tr>
+{# Portfolio table body. Rows are pre-ordered (AI-fit first, then by sort key).
+   A divider marks where the not-a-fit cases begin so the guardrail stays visible. #}
+{% set ns = namespace(divider=false) %}
+{% for r in rows %}
+  {% if r.ai_fit == 0 and not ns.divider %}
+    {% set ns.divider = true %}
+    <tr class="group-divider">
+      <td colspan="6">Not a fit for AI — ranked separately so they can't outrank real opportunities</td>
+    </tr>
+  {% endif %}
+  <tr class="{{ 'row-nofit' if r.ai_fit == 0 else '' }}">
     <td>
-      <a class="row-title" href="/use-cases/{{ case['id'] }}">{{ case['title'] }}</a>
-      <div class="muted small">{{ case['problem']|truncate(96) }}</div>
+      <a class="row-title" href="/use-cases/{{ r.id }}">{{ r.title }}</a>
+      <div class="muted small">{{ r.submitter or '—' }}{% if r.workflow %} · {{ r.workflow }}{% endif %}</div>
     </td>
-    <td>{{ case['submitter'] or '—' }}</td>
-    <td>{{ case['workflow'] or '—' }}</td>
     <td>
-      {% if s is none %}
-        <span class="badge badge-neutral">Unscored</span>
-      {% elif s['ai_fit'] == 1 %}
-        <span class="badge badge-fit">AI fit</span>
-      {% else %}
-        <span class="badge badge-nofit">Not a fit</span>
-      {% endif %}
+      {% if r.composite is not none %}
+        <span class="pill pill-{{ r.composite|tier }}">{{ r.composite }}</span>
+      {% else %}<span class="muted">—</span>{% endif %}
     </td>
-    <td class="nowrap"><a href="/use-cases/{{ case['id'] }}/edit">Edit</a></td>
+    <td class="num">{{ r.impact if r.impact is not none else '—' }}</td>
+    <td class="num">{{ r.feasibility if r.feasibility is not none else '—' }}</td>
+    <td>
+      {% if r.ai_fit is none %}<span class="badge badge-neutral">Unscored</span>
+      {% elif r.ai_fit == 1 %}<span class="badge badge-fit">AI fit</span>
+      {% else %}<span class="badge badge-nofit">Not a fit</span>{% endif %}
+    </td>
+    <td class="nowrap"><a href="/use-cases/{{ r.id }}/brief">Brief</a></td>
   </tr>
 {% else %}
-  <tr>
-    <td colspan="5" class="muted empty">
-      No use cases match. <a href="/use-cases/new">Add one</a>.
-    </td>
-  </tr>
+  <tr><td colspan="6" class="muted empty">No use cases match. <a href="/use-cases/new">Add one</a>.</td></tr>
 {% endfor %}
