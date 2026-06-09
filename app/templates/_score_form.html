@@ -1,0 +1,57 @@
+{# Human override form. Every value is editable; saving stores a new score row
+   with source='human' (DECISIONS 003). Swapped into #score-card. #}
+<div id="score-card" class="card">
+  <div class="score-head"><h2>Override scoring</h2></div>
+  <p class="muted small">
+    You are the decision-maker — adjust any value. The model proposes, a human
+    decides. Saved overrides are stored with full provenance.
+  </p>
+
+  <form hx-post="/use-cases/{{ case['id'] }}/score/override"
+        hx-target="#score-card" hx-swap="outerHTML">
+    <table class="table score-table">
+      <thead><tr><th>Dimension</th><th>Score (1–5)</th><th>Rationale</th></tr></thead>
+      <tbody>
+        {% for key, label in dimensions %}
+        <tr>
+          <td>{{ label }}</td>
+          <td>
+            <input type="number" min="1" max="5" name="{{ key }}"
+                   value="{{ score[key] if score else '' }}" required class="score-input" />
+            {% if errors.get(key) %}<div class="err">{{ errors[key] }}</div>{% endif %}
+          </td>
+          <td>
+            <input type="text" name="{{ key }}_rationale"
+                   value="{{ score[key ~ '_rationale'] if score else '' }}" />
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <div class="field">
+      <label for="roi_hypothesis">ROI hypothesis</label>
+      <textarea id="roi_hypothesis" name="roi_hypothesis" rows="2">{{ score['roi_hypothesis'] if score else '' }}</textarea>
+    </div>
+
+    <div class="field">
+      <label>
+        <input type="checkbox" name="ai_fit"
+               {% if not score or score['ai_fit'] %}checked{% endif %} />
+        This use case is a fit for AI
+      </label>
+    </div>
+
+    <div class="field">
+      <label for="ai_fit_reason">Fit / not-a-fit reason</label>
+      <textarea id="ai_fit_reason" name="ai_fit_reason" rows="2">{{ score['ai_fit_reason'] if score else '' }}</textarea>
+    </div>
+
+    <div class="actions">
+      <button class="btn btn-primary" type="submit">Save override</button>
+      <button class="btn" type="button"
+              hx-get="/use-cases/{{ case['id'] }}/score/card"
+              hx-target="#score-card" hx-swap="outerHTML">Cancel</button>
+    </div>
+  </form>
+</div>

@@ -192,3 +192,11 @@ body {
   margin: 0.5rem 0 1rem;
 }
 .provenance { border-top: 1px solid var(--border); padding-top: 0.6rem; margin-top: 1rem; }
+
+/* Override form: compact numeric score input */
+.score-input { width: 4.5rem; text-align: center; }
+
+/* HTMX loading indicator — hidden until a request is in flight */
+.htmx-indicator { display: none; }
+.htmx-request .htmx-indicator,
+.htmx-request.htmx-indicator { display: inline; }

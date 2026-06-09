@@ -14,7 +14,7 @@ from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse, Resp
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
-from app import __version__, db, models
+from app import __version__, db, models, scoring
 
 # Load .env early so config is available to every module. Absent .env is fine
 # until scoring needs a key (Phase 3); scoring validates its own config.
@@ -255,6 +255,127 @@ def use_case_detail(request: Request, use_case_id: int) -> HTMLResponse:
             "dimensions": models.DIMENSIONS,
         },
     )
+
+
+# --- scoring (Phase 3) -----------------------------------------------------
+
+
+def _score_card(
+    request: Request, case, score, error: str | None = None
+) -> HTMLResponse:
+    """Render the scoring card partial (the HTMX swap target)."""
+    return templates.TemplateResponse(
+        request,
+        "_score_card.html",
+        {
+            "case": case,
+            "score": score,
+            "dimensions": models.DIMENSIONS,
+            "error": error,
+        },
+    )
+
+
+@app.post("/use-cases/{use_case_id}/score/run")
+def run_scoring(request: Request, use_case_id: int):
+    """Propose scores via the LLM and store them (source='llm')."""
+    with db.get_connection() as conn:
+        case = models.get_use_case(conn, use_case_id)
+    if case is None:
+        return _not_found(request)
+
+    # Call the provider outside any open DB connection (it may be slow/networked).
+    try:
+        proposal = scoring.score_use_case(case)
+    except scoring.ScoringError as exc:
+        with db.get_connection() as conn:
+            score = models.latest_score_for(conn, use_case_id)
+        return _score_card(request, case, score, error=str(exc))
+
+    with db.get_connection() as conn:
+        models.insert_score(conn, use_case_id, proposal, source="llm")
+        score = models.latest_score_for(conn, use_case_id)
+
+    if _is_htmx(request):
+        return _score_card(request, case, score)
+    return RedirectResponse(f"/use-cases/{use_case_id}", status_code=303)
+
+
+@app.get("/use-cases/{use_case_id}/score/card", response_class=HTMLResponse)
+def score_card(request: Request, use_case_id: int):
+    """Return the current scoring card (used by the override form's Cancel)."""
+    with db.get_connection() as conn:
+        case = models.get_use_case(conn, use_case_id)
+        score = models.latest_score_for(conn, use_case_id) if case else None
+    if case is None:
+        return _not_found(request)
+    return _score_card(request, case, score)
+
+
+@app.get("/use-cases/{use_case_id}/score/override", response_class=HTMLResponse)
+def override_form(request: Request, use_case_id: int):
+    """Return the editable override form, pre-filled with the current score."""
+    with db.get_connection() as conn:
+        case = models.get_use_case(conn, use_case_id)
+        score = models.latest_score_for(conn, use_case_id) if case else None
+    if case is None:
+        return _not_found(request)
+    return templates.TemplateResponse(
+        request,
+        "_score_form.html",
+        {"case": case, "score": score, "dimensions": models.DIMENSIONS, "errors": {}},
+    )
+
+
+@app.post("/use-cases/{use_case_id}/score/override")
+async def save_override(request: Request, use_case_id: int):
+    """Persist a human override as a new score row (source='human')."""
+    with db.get_connection() as conn:
+        case = models.get_use_case(conn, use_case_id)
+    if case is None:
+        return _not_found(request)
+
+    form = await request.form()
+    data: dict = {}
+    errors: dict[str, str] = {}
+    for dimension, _label in models.DIMENSIONS:
+        try:
+            value = int(form.get(dimension, ""))
+            if not 1 <= value <= 5:
+                raise ValueError
+            data[dimension] = value
+        except (TypeError, ValueError):
+            errors[dimension] = "Enter 1–5."
+        data[f"{dimension}_rationale"] = (
+            form.get(f"{dimension}_rationale") or ""
+        ).strip()
+
+    data["roi_hypothesis"] = (form.get("roi_hypothesis") or "").strip()
+    data["ai_fit"] = form.get("ai_fit") == "on"
+    data["ai_fit_reason"] = (form.get("ai_fit_reason") or "").strip()
+
+    if errors:
+        return templates.TemplateResponse(
+            request,
+            "_score_form.html",
+            {
+                "case": case,
+                "score": data,
+                "dimensions": models.DIMENSIONS,
+                "errors": errors,
+            },
+            status_code=422,
+        )
+
+    data["model"] = "human"
+    data["prompt_version"] = "human-override"
+    with db.get_connection() as conn:
+        models.insert_score(conn, use_case_id, data, source="human")
+        score = models.latest_score_for(conn, use_case_id)
+
+    if _is_htmx(request):
+        return _score_card(request, case, score)
+    return RedirectResponse(f"/use-cases/{use_case_id}", status_code=303)
 
 
 # --- shared responses ------------------------------------------------------

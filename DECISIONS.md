@@ -140,3 +140,27 @@ entry whenever a real tradeoff is made.
 - Tradeoff accepted: A little duplication between `hx-post` and `action`; `main.py` will grow
   until the Phase 3/4 refactor.
 - Revisit if: `main.py` exceeds a comfortable size → split into `routers/` by area.
+
+## 012. Structured scoring via forced tool use; a `stub` provider for offline/test
+- Date / phase: Phase 3
+- Decision: The Anthropic provider gets structured output by forcing a single tool call
+  (`tool_choice` → a `record_scores` tool whose `input_schema` is the Pydantic score
+  schema) and reading the `tool_use` block, rather than `messages.parse()` /
+  `output_config.format`. Add a third `MODEL_PROVIDER=stub` backend: a deterministic,
+  no-network heuristic scorer. If `MODEL_PROVIDER=anthropic` but no `ANTHROPIC_API_KEY`,
+  scoring raises an actionable error pointing at `stub` rather than silently faking output.
+  Default model is `claude-opus-4-8` (configurable via `ANTHROPIC_MODEL`).
+- Alternatives considered: The newer `messages.parse()` structured-output API; free-text
+  JSON with manual parsing; silently auto-falling back to the stub when the key is missing.
+- Why: The pinned SDK is `anthropic==0.42.0` and the live Anthropic path can't be exercised
+  in this dev environment — forced tool use is the version-robust structured-output method
+  that works across SDK versions and all Claude 4.x models, and avoids the 4.8 request-surface
+  pitfalls (no `temperature`/`budget_tokens`). The stub keeps the app demoable and the tests
+  deterministic with no key or network (CLAUDE.md: "demoable at all times", "deterministic
+  where possible"). A loud error beats a silent fake — a demo that quietly shows heuristic
+  numbers as if they were model output would undercut the trust the tool is meant to build.
+- Tradeoff accepted: Forced tool use is slightly more verbose than `messages.parse()`; the
+  stub's scores are heuristic, not meaningful (clearly labelled as such). The Ollama path is
+  implemented but unverified here (no local Ollama).
+- Revisit if: We standardize on a newer SDK → switch the Anthropic provider to
+  `messages.parse()`; or scores prove unstable → add few-shot anchors / a stricter rubric.

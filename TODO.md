@@ -33,13 +33,18 @@ at every phase boundary.
   list/search/create/edit/detail/validation/404 all work on seeded data.
 
 ## Phase 3 — Scoring engine
-- [ ] `app/scoring.py`: LLM scores the five dimensions (Impact, Feasibility, Risk, Adoption,
+- [x] `app/scoring.py`: LLM scores the five dimensions (Impact, Feasibility, Risk, Adoption,
       Strategic Value), each with a 1–5 score **and** a one-line rationale.
-- [ ] Drafts an ROI hypothesis.
-- [ ] Produces an `ai_fit` judgment (fit / not a fit) with a written reason.
-- [ ] Provider abstraction: Anthropic by default, `MODEL_PROVIDER=ollama` for local.
-- [ ] Human override: every score/flag is editable in the UI; overrides are stored.
+- [x] Drafts an ROI hypothesis.
+- [x] Produces an `ai_fit` judgment (fit / not a fit) with a written reason.
+- [x] Provider abstraction (`app/providers.py`): Anthropic default (forced tool use),
+      `MODEL_PROVIDER=ollama` for local, plus `stub` for offline/no-key demos & tests
+      (DECISIONS 012). Model + prompt version recorded with every score.
+- [x] Human override: every score/flag editable in the UI; overrides stored as a new
+      `source='human'` row (append-only history).
 - **Gate:** scoring runs end-to-end on a seeded use case; output is explainable and editable.
+  ✅ 23 tests pass; live run (stub) → llm row → human override → append-only history verified.
+  Anthropic path implemented (forced tool use) but unexercised here — no API key in this env.
 
 ## Phase 4 — Prioritization & export
 - [ ] Portfolio view: sortable list with a composite priority score.

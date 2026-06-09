@@ -1,0 +1,68 @@
+{# Scoring card — the HTMX swap target. Run/Re-run AI scoring and Override all
+   replace this whole element (#score-card) with a fresh render. #}
+<div id="score-card" class="card">
+  <div class="score-head">
+    <h2>Scoring</h2>
+    {% if score %}
+      {% if score['ai_fit'] == 1 %}
+        <span class="badge badge-fit">AI fit</span>
+      {% else %}
+        <span class="badge badge-nofit">Not a fit for AI</span>
+      {% endif %}
+      {% if score['source'] == 'human' %}<span class="badge badge-neutral">Human override</span>{% endif %}
+    {% endif %}
+  </div>
+
+  {% if error %}<p class="callout">{{ error }}</p>{% endif %}
+
+  {% if score %}
+    {% if score['ai_fit'] == 0 %}
+      <p class="callout">{{ score['ai_fit_reason'] }}</p>
+    {% endif %}
+
+    <p class="muted small">
+      Scale: 1–5, where 5 is most favorable. For <strong>Risk</strong>, 5 means
+      low / well-managed risk.
+    </p>
+    <table class="table score-table">
+      <thead><tr><th>Dimension</th><th>Score</th><th>Rationale</th></tr></thead>
+      <tbody>
+        {% for key, label in dimensions %}
+        <tr>
+          <td>{{ label }}</td>
+          <td class="score-num">{{ score[key] }}<span class="muted">/5</span></td>
+          <td>{{ score[key ~ '_rationale'] }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <p><strong>ROI hypothesis.</strong> {{ score['roi_hypothesis'] }}</p>
+    {% if score['ai_fit'] == 1 and score['ai_fit_reason'] %}
+      <p class="muted"><strong>Fit rationale.</strong> {{ score['ai_fit_reason'] }}</p>
+    {% endif %}
+
+    <p class="muted small provenance">
+      Source: {{ score['source'] }} · model: {{ score['model'] or '—' }} ·
+      prompt: {{ score['prompt_version'] or '—' }} · {{ score['created_at'] }}
+    </p>
+  {% else %}
+    <p class="muted">Not scored yet. The model proposes; you review and decide.</p>
+  {% endif %}
+
+  <div class="actions">
+    <button class="btn {{ 'btn-primary' if not score else '' }}"
+            hx-post="/use-cases/{{ case['id'] }}/score/run"
+            hx-target="#score-card" hx-swap="outerHTML" hx-indicator="#score-spin">
+      {{ 'Re-run AI scoring' if score else 'Run AI scoring' }}
+    </button>
+    {% if score %}
+    <button class="btn"
+            hx-get="/use-cases/{{ case['id'] }}/score/override"
+            hx-target="#score-card" hx-swap="outerHTML">
+      Override
+    </button>
+    {% endif %}
+    <span id="score-spin" class="htmx-indicator muted">Scoring…</span>
+  </div>
+</div>
