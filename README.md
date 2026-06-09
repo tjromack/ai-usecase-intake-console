@@ -118,18 +118,67 @@ Not in scope for this prototype, but the decisions I would make to take it furth
   attached; secrets management; PII scanning on intake.
 - **Scale:** background scoring jobs, caching, and a richer portfolio analytics layer.
 
+## Architecture
+
+A small, layered server-rendered app — no client framework, no build step. Each module is
+single-purpose, and the one source of non-determinism (the LLM) is isolated behind an
+interface and stamped with provenance.
+
+```
+Browser ──HTTP/HTMX──▶ main.py (routes/views)
+                          │
+                          ├─▶ db.py ──▶ SQLite (data/console.db)
+                          │     ▲
+                          │   models.py (schema + typed data access; append-only `score`)
+                          │
+                          ├─▶ scoring.py ──▶ providers.py ──▶ Anthropic | Ollama | stub
+                          │      (prompt + rubric)              (one `propose()` interface)
+                          │
+                          ├─▶ prioritization.py (pure: composite, quadrant, ranking)
+                          │
+                          └─▶ templates/ (Jinja) ──▶ HTML / HTMX partial swaps
+```
+
+| Module | Responsibility |
+| --- | --- |
+| `main.py` | FastAPI routes; renders full pages and HTMX partials; wires the pieces together |
+| `db.py` | SQLite connection (row factory, FK enforcement, commit/rollback scope) |
+| `models.py` | Schema DDL + data access; `score` is **append-only** (latest row wins) |
+| `seed.py` | Idempotent loader for the synthetic seed |
+| `scoring.py` | System prompt / rubric, calls a provider, clamps to the 1–5 rubric, records `model` + `prompt_version` |
+| `providers.py` | LLM abstraction — Anthropic (forced tool use for structured output), Ollama (local), `stub` (offline, deterministic) |
+| `prioritization.py` | Pure, deterministic composite score, quadrant, and ordering |
+| `eval.py` | Re-scores the seed and reports stability / guardrail / rubric metrics |
+
+**Design spine** (see `DECISIONS.md` for the full log):
+
+- **Determinism boundary.** Storage, ranking, and quadrant math are deterministic; only the
+  scoring step is non-deterministic, and every score records the model + prompt version +
+  source (`seed` / `llm` / `human`) so any number is traceable.
+- **Human-in-the-loop.** The LLM *proposes*; a human can override every value. Overrides are
+  stored as new `score` rows (append-only history), never destructive edits.
+- **Guardrail as a feature.** The scorer judges *fit / not a fit for AI*; not-a-fit cases are
+  grouped separately in the portfolio so they can't out-rank real opportunities.
+- **Pluggable model.** `MODEL_PROVIDER` swaps Claude ↔ local Ollama ↔ offline stub with no
+  code change — a privacy-preserving path and a no-network demo mode.
+
 ## Project structure
 
 ```
 app/
-  main.py          # FastAPI app + routes
-  models.py        # SQLite schema / data model
-  scoring.py       # LLM scoring + ROI hypothesis + fit check
-  seed.py          # synthetic use-case generator
+  main.py          # FastAPI app + routes (pages + HTMX partials)
+  db.py            # SQLite connection management
+  models.py        # schema / data model (append-only score history)
+  scoring.py       # LLM scoring: prompt, ROI hypothesis, fit check
+  providers.py     # model-provider abstraction (anthropic | ollama | stub)
+  prioritization.py# deterministic composite, quadrant, ranking
+  seed.py          # synthetic use-case loader
   eval.py          # scoring evaluation harness
-  templates/       # HTMX views (intake, portfolio, quadrant, brief)
+  templates/       # HTMX views (portfolio, intake, detail, quadrant, brief)
+  static/          # hand-rolled CSS (no framework)
 data/
   use_cases.seed.json
+USER_GUIDE.md      # end-user manual / feature walkthrough
 DECISIONS.md       # decision log (ADR-lite)
 DEMO.md            # live demo script + reset
 TODO.md            # phased build plan with approval gates
