@@ -92,3 +92,34 @@ entry whenever a real tradeoff is made.
   versions need periodic manual bumps.
 - Revisit if: We need richer task orchestration, or pins go stale → adopt `just` or a
   constraints file.
+
+## 009. Scores are append-only history; latest row wins
+- Date / phase: Phase 1
+- Decision: The `score` table is append-only — a re-score or human override inserts a NEW
+  row, and reads select MAX(id) per use case as the current value. A `source` column
+  (`seed` | `llm` | `human`) distinguishes who produced each row. Re-seeding replaces only
+  prior `source='seed'` rows, never human/LLM scores.
+- Alternatives considered: One mutable score row per use case, updated in place.
+- Why: The product thesis is capturing *why* a decision was made; keeping every prior score
+  gives a free audit trail of how a value changed and who changed it (LLM vs human), which
+  matters in a regulated setting. Idempotent seeding falls out naturally by clearing only
+  seed-sourced rows.
+- Tradeoff accepted: Reads need a "latest per use case" join instead of a plain select;
+  the table grows with each re-score.
+- Revisit if: History is never used in the UI and the join cost matters → collapse to a
+  single current row plus a separate audit log.
+
+## 010. All five dimensions scored 1-5 with 5 = most favorable
+- Date / phase: Phase 1
+- Decision: Every dimension uses an integer 1-5 where 5 is the most favorable for
+  prioritization. For Risk this means 5 = low / well-managed risk (not high risk). Enforced
+  with CHECK constraints on the score columns.
+- Alternatives considered: Scoring Risk in its natural direction (5 = high risk) and
+  inverting it in the composite formula.
+- Why: A uniform "higher is better" convention lets the Phase 4 composite priority score
+  combine dimensions without per-dimension sign handling, and keeps the quadrant math
+  obvious. The direction is documented in `models.py` and encoded in the scoring prompt.
+- Tradeoff accepted: "Risk = 5" reads as counter-intuitive until you know the convention;
+  mitigated by labeling and rationales that state the risk posture in words.
+- Revisit if: Reviewers find the inverted Risk scale confusing → relabel as "Risk posture"
+  or "Manageability" in the UI.

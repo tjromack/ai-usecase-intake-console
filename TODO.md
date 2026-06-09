@@ -13,13 +13,16 @@ at every phase boundary.
   server returns 200 on `/health`, `/`, `/static/style.css`.
 
 ## Phase 1 — Data model & synthetic seed
-- [ ] SQLite schema: `use_case` (problem, workflow, data_availability, stakeholders, pain,
+- [x] SQLite schema: `use_case` (problem, workflow, data_availability, stakeholders, pain,
       submitter, created_at) and `score` (dimension scores, rationales, roi_hypothesis,
-      ai_fit flag + reason, model/prompt version, created_at).
-- [ ] `app/seed.py` generates 8–10 realistic healthcare-payer use cases, including at least
-      two deliberate "not a fit for AI" cases.
-- [ ] `make seed` loads them; `make reset` returns to clean seeded state.
-- **Gate:** seed data inspectable; schema reviewed.
+      ai_fit flag + reason, model/prompt version, created_at). Append-only history
+      (DECISIONS 009); 1–5 dimensions, 5 = most favorable (DECISIONS 010).
+- [x] `app/seed.py` generates 10 realistic healthcare-payer use cases, including three
+      deliberate "not a fit for AI" cases (autonomous denials, billing reconciliation,
+      eligibility lookup).
+- [x] `make seed` loads them; `make reset` returns to clean seeded state.
+- **Gate:** seed data inspectable; schema reviewed. ✅ `make reset` → 10 cases / 3 not-a-fit;
+  8 tests pass (counts, guardrail, rationales present, rubric range, provenance, idempotency).
 
 ## Phase 2 — Intake
 - [ ] Intake form (HTMX) to create/edit a use case.

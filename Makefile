@@ -28,11 +28,11 @@ install:  ## Create a venv and install dependencies
 run:  ## Start the dev server with autoreload
 	$(VENV_BIN)/uvicorn app.main:app --reload
 
-seed:  ## Load synthetic use cases into SQLite (Phase 1)
-	@echo "seed: not implemented until Phase 1." && exit 1
+seed:  ## Load synthetic use cases into SQLite
+	$(PY) -m app.seed
 
-reset:  ## Delete the db and re-seed for a clean demo (Phase 1)
-	@echo "reset: not implemented until Phase 1." && exit 1
+reset:  ## Delete the db and re-seed for a clean demo
+	$(PY) -m app.seed --reset
 
 test:  ## Run the test suite
 	$(PY) -m pytest -q
