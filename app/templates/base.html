@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{% block title %}{{ title }}{% endblock %} · AI Use-Case Console</title>
+  <link rel="stylesheet" href="{{ url_for('static', path='style.css') }}" />
+  <!-- HTMX for server-rendered interactivity, no build step (DECISIONS 001). -->
+  <script src="https://unpkg.com/htmx.org@2.0.4" defer></script>
+</head>
+<body>
+  <!-- Standing reminder that nothing here is real data (CLAUDE.md guardrail 1). -->
+  <div class="banner" role="note">
+    Synthetic data only — no PHI, no real or internal systems. Prototype for demonstration.
+  </div>
+
+  <header class="topbar">
+    <a class="brand" href="/">AI Use-Case Console</a>
+    <nav>
+      <a href="/">Portfolio</a>
+      <span class="muted">Intake · Scoring · Brief (coming soon)</span>
+    </nav>
+  </header>
+
+  <main class="container">
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="footer muted">
+    AI proposes, a human decides — every score is reviewable and overridable.
+  </footer>
+</body>
+</html>

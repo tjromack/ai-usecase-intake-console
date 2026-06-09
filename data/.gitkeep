@@ -1,0 +1,2 @@
+# Keeps the data/ directory in git. The SQLite database is generated here by
+# `make seed` / `make reset` and is gitignored.

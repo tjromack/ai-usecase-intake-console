@@ -1,0 +1,67 @@
+/* Minimal hand-rolled styling — no CSS framework (DECISIONS 001: no build step).
+   Goal: legible and presentable for a live demo, nothing more. */
+
+:root {
+  --bg: #f7f8fa;
+  --fg: #1d2330;
+  --muted: #667085;
+  --accent: #2f5bea;
+  --card: #ffffff;
+  --border: #e3e6ec;
+  --banner: #fff4e5;
+  --banner-fg: #7a4a00;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  color: var(--fg);
+  background: var(--bg);
+  line-height: 1.5;
+}
+
+.banner {
+  background: var(--banner);
+  color: var(--banner-fg);
+  font-size: 0.85rem;
+  text-align: center;
+  padding: 0.4rem 1rem;
+  border-bottom: 1px solid #f0e2cc;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 0.9rem 1.5rem;
+  background: var(--card);
+  border-bottom: 1px solid var(--border);
+}
+
+.brand { font-weight: 700; color: var(--fg); text-decoration: none; }
+.topbar nav { display: flex; gap: 1rem; align-items: baseline; }
+.topbar nav a { color: var(--accent); text-decoration: none; }
+
+.container { max-width: 880px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+.hero h1 { font-size: 1.7rem; margin-bottom: 0.5rem; }
+.lead { font-size: 1.05rem; color: var(--fg); max-width: 60ch; }
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1.25rem 1.5rem;
+  margin-top: 1.5rem;
+}
+.card h2 { margin-top: 0; font-size: 1.1rem; }
+
+.muted { color: var(--muted); }
+
+.footer {
+  text-align: center;
+  font-size: 0.8rem;
+  padding: 2rem 1rem;
+}

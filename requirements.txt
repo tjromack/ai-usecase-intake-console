@@ -1,0 +1,19 @@
+# AI Use-Case Intake & Prioritization Console — runtime + dev dependencies.
+# Pinned for reproducible demos (CLAUDE.md: "demoable at all times").
+
+# Web framework + server
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+jinja2==3.1.5
+python-multipart==0.0.20   # form posts for the intake screen (Phase 2)
+
+# Config / secrets (read from .env, never hard-coded)
+python-dotenv==1.0.1
+
+# LLM provider (Anthropic default; Ollama path uses httpx, no extra dep)
+anthropic==0.42.0
+httpx==0.28.1
+
+# Dev tooling
+pytest==8.3.4
+ruff==0.8.6
