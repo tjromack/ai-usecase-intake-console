@@ -1,13 +1,13 @@
 # AI Use-Case Intake & Prioritization Console
 
-A web application that operationalizes the AI Innovation Lead's own workflow: capturing
-proposed AI use cases through structured intake and scoring them for portfolio
-prioritization. It is the tool the role would actually use to run an AI opportunity
-pipeline — built as a working prototype on synthetic data.
+A web application that operationalizes AI opportunity management: capturing proposed AI use
+cases through structured intake and scoring them for portfolio prioritization. It's the tool
+a team would use to run an AI opportunity pipeline — turn a stream of ideas into a ranked,
+explainable portfolio — built as a working prototype on synthetic data.
 
-> Built against the Claritev problem space using **synthetic data only — no PHI, no internal
-> systems**. This repo is a personal portfolio prototype, not affiliated with or using any
-> employer data, code, or infrastructure.
+> Modeled on a healthcare-payer problem space using **synthetic data only — no PHI, no
+> internal systems**. This is a portfolio prototype, not affiliated with or using any
+> organization's data, code, or infrastructure.
 
 ---
 
@@ -25,7 +25,8 @@ AI is even the right tool.
 
 ## Who it's for
 
-An AI Innovation Lead, a transformation team, or a business unit triaging where to apply AI.
+Anyone responsible for triaging where to apply AI — an innovation or transformation function,
+a data/AI team, or a business unit deciding which proposed use cases to pursue.
 
 ## What it does
 
@@ -39,13 +40,13 @@ An AI Innovation Lead, a transformation team, or a business unit triaging where 
 - **Decision brief export** — a one-page summary per use case suitable for an executive
   audience.
 
-## Why it maps to the role
+## Why it's built this way
 
-This *is* the operating model named in the job posting: developing frameworks for AI
-use-case intake, prioritization, ROI measurement, and risk assessment; producing crisp
+It models the operating practice of a mature AI function: developing a repeatable framework
+for use-case intake, prioritization, ROI measurement, and risk assessment; producing crisp
 executive decision documents; and exercising responsible-AI judgment about when *not* to use
-AI. The five scoring dimensions deliberately mirror the posting's own prioritization
-criteria.
+AI. The five scoring dimensions reflect the criteria organizations commonly weigh when
+deciding where to invest.
 
 ## Tech stack
 

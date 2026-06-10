@@ -11,7 +11,7 @@ from pydantic import BaseModel
 from app import models, providers
 
 # Bump when the prompt/rubric changes so scores remain traceable to their prompt.
-PROMPT_VERSION = "score-v1"
+PROMPT_VERSION = "score-v2"
 
 
 class ScoreProposal(BaseModel):
@@ -36,8 +36,8 @@ class ScoringError(RuntimeError):
     """Surfaced to the UI when scoring cannot complete (config or provider error)."""
 
 
-SYSTEM_PROMPT = """You are an AI Innovation Lead triaging proposed AI use cases for a \
-healthcare-payer organization. All data is synthetic. You PROPOSE scores; a human \
+SYSTEM_PROMPT = """You are evaluating proposed AI use cases for a healthcare-payer \
+organization to decide where to invest. All data is synthetic. You PROPOSE scores; a human \
 reviews and can override every value, so be candid and explain your reasoning.
 
 Score the use case on five dimensions, each an integer 1-5 where 5 is the MOST \
@@ -56,7 +56,7 @@ simple database lookup or system integration, or a fully-autonomous high-stakes 
 decision that legally/ethically requires a human (such as issuing coverage denials). \
 When ai_fit=false, the reason must say plainly why AI is the wrong tool or must be \
 limited to decision support. Be willing to flag a poor fit; knowing when NOT to use \
-AI is part of the job."""
+AI is part of responsible AI adoption."""
 
 
 def _format_use_case(case) -> str:

@@ -33,8 +33,8 @@ entry whenever a real tradeoff is made.
 - Decision: Use an LLM to score the five dimensions and draft the ROI hypothesis.
 - Alternatives considered: A deterministic weighted-form rubric the user fills in manually.
 - Why: The valuable, hard-to-fake part is reasoning about an ambiguous use case from a short
-  description — exactly what an LLM is good at, and exactly what the role does. A pure form
-  would shift all the thinking back to the user.
+  description — exactly what an LLM is good at, and exactly what this kind of triage requires.
+  A pure form would shift all the thinking back to the user.
 - Tradeoff accepted: Non-determinism and the need to evaluate output quality (handled in
   `app/eval.py`). Mitigated by recording the model + prompt version with each score.
 - Revisit if: Scores prove unstable → constrain with a stricter rubric or few-shot anchors.
@@ -52,22 +52,22 @@ entry whenever a real tradeoff is made.
 - Decision: The scorer must judge whether AI is even appropriate, with a written reason, and
   surface "not a fit" cases distinctly.
 - Alternatives considered: Score everything on the assumption AI applies.
-- Why: The job posting explicitly values judgment about *when not to use AI*. Building this in
-  turns a stated value into a demonstrable feature.
+- Why: Responsible AI adoption explicitly values judgment about *when not to use AI*. Building
+  this in turns a stated principle into a demonstrable feature.
 
 ## 005. Synthetic data only, authored in-repo
 - Phase: 1
 - Decision: Ship a seed of 8–10 synthetic healthcare-payer use cases, including deliberate
   "not a fit" cases.
 - Alternatives considered: Scraping public examples; using anonymized real data.
-- Why: Governance and honesty — no real or internal data in a personal portfolio. Authored
+- Why: Governance and honesty — no real or internal data in a portfolio prototype. Authored
   cases also let me control the demo and guarantee the guardrail has something to catch.
 
-## 006. Five scoring dimensions mirror the role's prioritization criteria
+## 006. Five scoring dimensions reflect common prioritization criteria
 - Phase: 1/3
 - Decision: Impact, Feasibility, Risk, Adoption, Strategic Value.
-- Why: These are the criteria named in the job posting itself. Aligning the tool to the
-  organization's stated framework makes the prototype immediately legible to the audience.
+- Why: These are the criteria organizations commonly weigh when deciding where to invest in
+  AI. Aligning the tool to a recognizable framework makes the prototype immediately legible.
 
 ## 007. Pluggable model provider (Anthropic default, Ollama local)
 - Phase: 3

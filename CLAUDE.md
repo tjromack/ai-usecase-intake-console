@@ -7,7 +7,7 @@ each session and keep to it.
 
 Build the **AI Use-Case Intake & Prioritization Console**: a FastAPI + SQLite + HTMX web app
 that captures proposed AI use cases and scores them across five dimensions for portfolio
-prioritization. This is an interview-demo prototype that must run reliably and be explainable.
+prioritization. This is a demonstration prototype that must run reliably and be explainable.
 
 ## Operating principles (guardrails)
 
@@ -51,7 +51,7 @@ make fmt         # format (ruff/black)
 - Type hints on public functions; docstrings explaining *why*, not *what*.
 - No secrets in code; read from `.env`.
 - **Commit at each phase boundary** with a message summarizing what shipped and why. The git
-  history is an interview artifact — make it readable.
+  history is a project artifact — make it readable.
 - Update `DECISIONS.md` whenever a non-trivial choice is made (stack, model, schema, scoring
   logic, anything with a rejected alternative).
 

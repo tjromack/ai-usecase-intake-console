@@ -38,9 +38,9 @@ pipeline: a structured way to capture proposed use cases, score them on a consis
 and produce a prioritized portfolio plus a one-page decision brief per idea — including an
 explicit judgment on whether AI is even the right tool.
 
-**It's for** an AI Innovation Lead, a transformation team, or any business unit triaging
-where to apply AI. You bring the ideas; the console helps you compare them on evidence and
-record *why* each one was greenlit, parked, or rejected.
+**It's for** anyone triaging where to apply AI — an innovation or transformation function, a
+data/AI team, or a business unit. You bring the ideas; the console helps you compare them on
+evidence and record *why* each one was greenlit, parked, or rejected.
 
 **The core idea:** the AI *proposes* scores and a recommendation; **a human reviews and
 decides.** The tool is a decision aid, never the decision-maker.

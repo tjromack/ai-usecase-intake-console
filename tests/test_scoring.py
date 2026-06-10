@@ -82,7 +82,7 @@ def test_run_scoring_stores_llm_row(client) -> None:
     score = _latest(3)
     assert score["source"] == "llm"
     assert score["model"] == "stub-v1"
-    assert score["prompt_version"] == "score-v1"
+    assert score["prompt_version"] == scoring.PROMPT_VERSION
 
 
 def test_override_stores_human_row_and_wins(client) -> None:

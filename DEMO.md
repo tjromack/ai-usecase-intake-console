@@ -1,6 +1,6 @@
 # DEMO.md — Live Demo Script
 
-A tight, repeatable walkthrough for a live interview demo. Practice it cold.
+A tight, repeatable walkthrough for a live demo. Practice it cold.
 
 ## Before the demo
 ```bash
@@ -27,14 +27,14 @@ identical.
 
 3. **Run scoring.** On the use-case page, click **Run AI scoring**. Show the five dimension
    scores (each with a rationale), the ROI hypothesis, and the composite priority + quadrant.
-   *"It scores against the same five criteria the org prioritizes on, and it explains each
+   *"It scores against a consistent set of five criteria, and it explains each
    score — I never want an unexplained number."*
-   → Proves: explainability, alignment to the role's framework.
+   → Proves: explainability, alignment to a consistent prioritization framework.
 
 4. **Show a "not a fit" case from the seed.** Open one of the three (e.g. *Autonomous
    medical-necessity denials*). *"It also tells you when AI is the wrong tool, with a reason.
-   Knowing where not to use AI is part of the job."* Note they're grouped at the bottom of the
-   portfolio so they can't out-rank real opportunities.
+   Knowing where not to use AI is part of responsible AI adoption."* Note they're grouped at
+   the bottom of the portfolio so they can't out-rank real opportunities.
    → Proves: responsible-AI judgment as a feature.
 
 5. **Override a score.** Click **Override**, change one value, save. *"The model proposes; a
