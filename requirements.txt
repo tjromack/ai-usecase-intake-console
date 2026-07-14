@@ -13,6 +13,7 @@ python-dotenv==1.0.1
 # LLM provider (Anthropic default; Ollama path uses httpx, no extra dep)
 anthropic==0.42.0
 httpx==0.28.1
+truststore==0.10.4         # use the OS cert store (works behind TLS-intercepting proxies)
 
 # Dev tooling
 pytest==8.3.4

@@ -17,7 +17,13 @@ import os
 from typing import Type, TypeVar
 
 import httpx
+import truststore
 from pydantic import BaseModel
+
+# Use the OS certificate store so the Anthropic call works behind a TLS-intercepting
+# proxy / custom CA. Injected at import time — before any provider makes an SSL request.
+# (Consistent with the RAG copilot + payment-integrity-reviewer.)
+truststore.inject_into_ssl()
 
 T = TypeVar("T", bound=BaseModel)
 
