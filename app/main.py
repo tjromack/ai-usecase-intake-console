@@ -328,6 +328,25 @@ def update_use_case(
 # --- detail ----------------------------------------------------------------
 
 
+def _history_view(use_case_id: int) -> list[dict]:
+    """The append-only scoring trail, newest first, each row augmented with its composite.
+
+    Precomputed here (not in the template) so the card can show how the numbers changed across
+    re-scores and human overrides without the template calling scoring math per row.
+    """
+    with db.get_connection() as conn:
+        rows = models.score_history(conn, use_case_id)
+    return [
+        {"score": r, "composite": prioritization.composite(r), "quadrant": prioritization.quadrant(r)}
+        for r in rows
+    ]
+
+
+def _has_override(history: list[dict]) -> bool:
+    """True if a human override is anywhere in the trail — used to auto-open the history section."""
+    return any(h["score"]["source"] == "human" for h in history)
+
+
 @app.get("/use-cases/{use_case_id}", response_class=HTMLResponse)
 def use_case_detail(request: Request, use_case_id: int) -> HTMLResponse:
     with db.get_connection() as conn:
@@ -335,6 +354,7 @@ def use_case_detail(request: Request, use_case_id: int) -> HTMLResponse:
         score = models.latest_score_for(conn, use_case_id) if case else None
     if case is None:
         return _not_found(request)
+    history = _history_view(use_case_id)
     return templates.TemplateResponse(
         request,
         "use_case_detail.html",
@@ -345,6 +365,8 @@ def use_case_detail(request: Request, use_case_id: int) -> HTMLResponse:
             "dimensions": models.DIMENSIONS,
             "composite": prioritization.composite(score),
             "quadrant": prioritization.quadrant(score),
+            "history": history,
+            "history_has_override": _has_override(history),
         },
     )
 
@@ -356,6 +378,7 @@ def _score_card(
     request: Request, case, score, error: str | None = None
 ) -> HTMLResponse:
     """Render the scoring card partial (the HTMX swap target)."""
+    history = _history_view(case["id"]) if case else []
     return templates.TemplateResponse(
         request,
         "_score_card.html",
@@ -366,6 +389,9 @@ def _score_card(
             "composite": prioritization.composite(score),
             "quadrant": prioritization.quadrant(score),
             "error": error,
+            # Always fresh: after a re-score or override, the trail gains the new row.
+            "history": history,
+            "history_has_override": _has_override(history),
         },
     )
 

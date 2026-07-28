@@ -222,3 +222,18 @@ def latest_score_for(
         "SELECT * FROM score WHERE use_case_id = ? ORDER BY id DESC LIMIT 1",
         (use_case_id,),
     ).fetchone()
+
+
+def score_history(
+    conn: sqlite3.Connection, use_case_id: int
+) -> list[sqlite3.Row]:
+    """Every score row for one use case, newest first — the append-only audit trail.
+
+    The `score` table never updates in place (DECISIONS 009): a re-score or a human override
+    inserts a NEW row, so this is the full history of how (and by whom) a score changed over time.
+    The UI surfaces it so an override is transparent, not a silent overwrite (CLAUDE.md §2).
+    """
+    return conn.execute(
+        "SELECT * FROM score WHERE use_case_id = ? ORDER BY id DESC",
+        (use_case_id,),
+    ).fetchall()

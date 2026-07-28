@@ -277,3 +277,10 @@ td.num, th .sortlink { white-space: nowrap; }
   .brief-sheet { border: none; border-radius: 0; padding: 0; }
   .table { border-color: #ccc; }
 }
+
+/* Scoring history (append-only override trail) — 2026-07-28 */
+details.history { margin-top: 0.75rem; }
+details.history > summary { cursor: pointer; }
+.history-table { margin-top: 0.5rem; }
+.history-table th, .history-table td { padding: 3px 8px; font-size: 0.8rem; }
+.history-table tr.current td { background: #f3f7ff; }

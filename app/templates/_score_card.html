@@ -52,6 +52,37 @@
       Source: {{ score['source'] }} · model: {{ score['model'] or '—' }} ·
       prompt: {{ score['prompt_version'] or '—' }} · {{ score['created_at'] }}
     </p>
+
+    {% if history and history|length > 1 %}
+    <details class="history"{% if history_has_override %} open{% endif %}>
+      <summary class="muted small">Scoring history ({{ history|length }}) — re-scores &amp; human overrides are
+        appended, never overwritten</summary>
+      <table class="table small history-table">
+        <thead>
+          <tr><th>When</th><th>Source</th><th>Fit</th>
+            {% for key, label in dimensions %}<th title="{{ label }}">{{ label[:4] }}</th>{% endfor %}
+            <th>Priority</th></tr>
+        </thead>
+        <tbody>
+          {% for h in history %}
+          <tr class="{{ 'current' if loop.first else '' }}">
+            <td class="small">{{ h.score['created_at'] }}
+              {%- if loop.first %} <span class="badge badge-neutral">current</span>{% endif %}</td>
+            <td>
+              {% if h.score['source'] == 'human' %}<span class="badge badge-neutral">human</span>
+              {% else %}{{ h.score['source'] }}{% endif %}
+            </td>
+            <td>{{ 'yes' if h.score['ai_fit'] == 1 else 'no' }}</td>
+            {% for key, label in dimensions %}<td class="score-num">{{ h.score[key] }}</td>{% endfor %}
+            <td><span class="pill pill-{{ h.composite|tier }}">{{ h.composite }}</span></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      <p class="muted small">A human override is stored as a new row (<code>source=human</code>); the earlier
+        AI proposal stays in the trail, so every change is auditable.</p>
+    </details>
+    {% endif %}
   {% else %}
     <p class="muted">Not scored yet. The model proposes; you review and decide.</p>
   {% endif %}

@@ -206,3 +206,21 @@ entry whenever a real tradeoff is made.
   (the report says which ran). The stub markers are mildly fitted to the seed vocabulary.
 - Revisit if: We add many more seed cases or want true precision/recall → build a dedicated
   labelled eval set and report both precision and recall.
+
+## 015. Surface the append-only override history on the score card (2026-07-28)
+- Decision: The scoring card now renders a **"Scoring history"** section — the full append-only trail of score
+  rows for a use case (seed → LLM re-scores → human overrides), newest-first, via `models.score_history`. Each
+  row shows when, the source (a `human` badge for overrides), AI-fit, the five dimension values, and the
+  composite priority, so a viewer can see exactly what changed and who changed it. It renders only when there
+  is more than one row (nothing to compare against otherwise) and **auto-opens when a human override exists**.
+  The trail is precomputed in the route (`_history_view`, composite per row) and rides in the same `_score_card`
+  partial, so it stays fresh after every re-score/override HTMX swap.
+- Why: The data was already append-only (DECISIONS 009) — a re-score or override inserts a new row and never
+  overwrites — but the UI only showed the *latest* value, so an override read as a silent overwrite. Surfacing
+  the trail makes human-in-the-loop **auditable** rather than merely possible (CLAUDE.md §2 / §5: never present
+  AI output as a final decision; explainability is a feature). It reuses the existing data model and priorit-
+  isation math — no schema change, no new dependency.
+- Rejected: A separate history page/route (an extra click for what belongs next to the score); showing only a
+  count ("overridden 2×") without the values (hides *what* changed); recomputing composites in the template
+  (kept scoring math in Python — the template stays declarative); truncating to the last N rows (the trail is
+  short and the whole point is completeness).
