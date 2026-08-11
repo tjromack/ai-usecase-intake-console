@@ -1,5 +1,8 @@
 # AI Use-Case Intake & Prioritization Console
 
+> © 2026 Trevor J. Romack — **source-available for review, not open-source** ([LICENSE](LICENSE)). No reuse or
+> commercial use without permission. · tjromack@gmail.com
+
 A web application that operationalizes AI opportunity management: capturing proposed AI use
 cases through structured intake and scoring them for portfolio prioritization. It's the tool
 a team would use to run an AI opportunity pipeline — turn a stream of ideas into a ranked,
