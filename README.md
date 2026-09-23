@@ -12,6 +12,9 @@ explainable portfolio — built as a working prototype on synthetic data.
 > internal systems**. This is a portfolio prototype, not affiliated with or using any
 > organization's data, code, or infrastructure.
 
+**Demonstrates:** structured AI-opportunity intake with LLM-proposed, human-overridable scoring across five dimensions —
+including a "when *not* to use AI" guardrail — with the scoring checked for stability and rubric adherence (`make eval`).
+
 ---
 
 ## The problem it solves
@@ -68,7 +71,7 @@ See `DECISIONS.md` for why each of these was chosen over the alternatives.
 python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 
-# 2. Seed synthetic use cases (8-10 realistic healthcare-payer examples)
+# 2. Seed synthetic use cases (10 realistic healthcare-payer examples)
 python -m app.seed
 
 # 3. Run
@@ -107,6 +110,17 @@ Scoring quality is checked, not assumed (`make eval` / `python -m app.eval`):
   The tool is a decision aid, not a decision maker.
 - A local-model option (Ollama) demonstrates a privacy-preserving deployment path for
   sensitive environments.
+
+## Limits — what this does *not* let you claim
+
+- **A decision aid, not a decision maker.** The LLM proposes scores and rationale; a human reviews and can override
+  every value. Nothing is prioritised, approved, or funded automatically.
+- **Ten synthetic use cases.** The seed is a small, authored set for a healthcare-payer context — enough to exercise the
+  intake, scoring, and ranking end to end, not a real portfolio, and carrying no real claims, members, or PHI.
+- **Scoring is calibrated to a rubric, not to human scorers.** The eval checks stability and rubric adherence; it does
+  not measure agreement with expert raters (inter-rater calibration is a stated production step).
+- **The "not a fit for AI" flag is a judgment prompt, not a policy engine.** It surfaces likely poor fits for a human to
+  weigh, not a compliance gate.
 
 ## Path to production
 
@@ -194,4 +208,5 @@ CLAUDE.md          # operating contract for Claude Code
 Feature-complete prototype (Phases 0–5). Intake, LLM scoring with human override, the
 prioritized portfolio, impact/feasibility quadrant, one-page decision brief, and the scoring
 eval all run on seeded synthetic data. `make reset` returns a clean demo state; `make eval`
-prints the scoring report. See `TODO.md` for the phased plan and `DEMO.md` for the walkthrough.
+prints the scoring report; a fresh `pytest` passes without a seed (isolated per-test DB, `tests/conftest.py`). See
+`TODO.md` for the phased plan and `DEMO.md` for the walkthrough.
