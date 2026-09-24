@@ -15,6 +15,12 @@ explainable portfolio — built as a working prototype on synthetic data.
 **Demonstrates:** structured AI-opportunity intake with LLM-proposed, human-overridable scoring across five dimensions —
 including a "when *not* to use AI" guardrail — with the scoring checked for stability and rubric adherence (`make eval`).
 
+![The use-case portfolio: ranked by a composite priority score, with "not a fit for AI" cases ranked separately](docs/portfolio.png)
+
+*The portfolio, ranked by a composite priority score across five dimensions. Cases judged a poor fit for AI are labelled
+**"Not a fit"** and ranked separately — an autonomous medical-necessity denial, here — so they can't outrank real
+opportunities. The judgment about where AI does **not** belong is a first-class output, not an omission.*
+
 ---
 
 ## The problem it solves
@@ -45,6 +51,11 @@ a data/AI team, or a business unit deciding which proposed use cases to pursue.
 - **Portfolio view** — a prioritized list plus an impact/feasibility quadrant.
 - **Decision brief export** — a one-page summary per use case suitable for an executive
   audience.
+
+![Opening a use case: the LLM-proposed five-dimension score card with rationales, and a human override](docs/score_card.gif)
+
+*Opening a use case shows the LLM-proposed score card — each of the five dimensions with its rationale — and a human can
+**override any value**. The model proposes; a person decides. The tool is a decision aid, not a decision maker.*
 
 ## Why it's built this way
 
