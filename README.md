@@ -8,6 +8,10 @@ cases through structured intake and scoring them for portfolio prioritization. I
 a team would use to run an AI opportunity pipeline — turn a stream of ideas into a ranked,
 explainable portfolio — built as a working prototype on synthetic data.
 
+This is a **delivery artifact**, not a tech demo: the kind of decision-support tool an AI-innovation or transformation
+function actually stands up to decide *where* to apply AI — and, just as importantly, where not to — with the reasoning
+legible to the people who fund the pilots.
+
 > Modeled on a healthcare-payer problem space using **synthetic data only — no PHI, no
 > internal systems**. This is a portfolio prototype, not affiliated with or using any
 > organization's data, code, or infrastructure.
